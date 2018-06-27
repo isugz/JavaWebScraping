@@ -15,6 +15,9 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
 /**
  * @author Ivy Sugars
  * 
@@ -59,7 +62,7 @@ public class Webpage {
 	 * @param searchParams: String array listing headers to be included with final URL, if any.
 	 * @return: String representing the final URL for connection.
 	 */
-	public String getConnection(String[] searchParams) {
+	public String getConnectionUrl(String[] searchParams) {
 		URL urlWithHeaders = null;
 		try {
 			HttpURLConnection connection = (HttpURLConnection) urlObject.openConnection();
@@ -82,28 +85,6 @@ public class Webpage {
 		return urlObject.toString();
 	}
 	
-	/**
-	 * Method reads the response from an HTTP connection.
-	 * @param connection: HttpURLConnection that the response comes from.
-	 * @return: StringBuffer that holds the response content.
-	 */
-	public StringBuffer readResponse(HttpURLConnection connection) {
-		StringBuffer content = null;
-		try {
-			int status = connection.getResponseCode();
-			BufferedReader input = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			String inputLine;
-			content = new StringBuffer();
-			while ((inputLine = input.readLine()) != null) {
-			    content.append(inputLine);
-			}
-			input.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return content;
-	}
-
 	/**
 	 * Private helper method to get headers for URL.
 	 * @param searchParams: String array that include all parameters for final URL.
@@ -128,6 +109,22 @@ public class Webpage {
 				e.printStackTrace();
 			}
 		return resultString.toString();
+	}
+	
+	/**
+	 * Public method to retrieve document from given URL.
+	 * @param url: String representing final version of request URL.
+	 * @return: Document (HTML) retrieved from URL.
+	 */
+	public Document getDocument(String url) {
+		Document document = null;
+		try {
+			document = Jsoup.connect(url).get();
+			// TODO Jsoup.connect is designed for method chaining; address cookies here
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return document;
 	}
 }
  
