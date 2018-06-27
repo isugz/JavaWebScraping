@@ -3,8 +3,10 @@
  */
 package com.isugz.ScraperTools;
 
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -56,18 +58,40 @@ public class Webpage {
 		}
 	}
 	
-	public String getRedirect(String[] searchParams) {
+	public HttpURLConnection getConnection(String[] searchParams) {
+		HttpURLConnection connection = null;
 		try {
-			HttpURLConnection connection = (HttpURLConnection) urlObject.openConnection();
+			connection = (HttpURLConnection) urlObject.openConnection();
+			connection.setRequestMethod("GET");
 			connection.setDoOutput(true);
 			DataOutputStream output = new DataOutputStream(connection.getOutputStream());
 			HashMap<String, String> parameters = getHeaders(searchParams, connection);
 			output.writeBytes(ParameterStringBuilder.getParameterString(parameters));
+			output.flush();
+			output.close();
+			return connection;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		return "";
+		return connection;
+	}
+	
+	public StringBuffer getResponse(HttpURLConnection connection) {
+		StringBuffer content = null;
+		try {
+			int status = connection.getResponseCode();
+			BufferedReader input = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+					String inputLine;
+					content = new StringBuffer();
+					while ((inputLine = input.readLine()) != null) {
+					    content.append(inputLine);
+					}
+					input.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return content;
 	}
 
 	private HashMap<String, String> getHeaders(String[] searchParams, HttpURLConnection connection) {
