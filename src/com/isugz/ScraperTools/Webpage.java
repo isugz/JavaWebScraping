@@ -7,14 +7,16 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Ivy Sugars
- * creates Webpage object with search criteria
  * 
  * Search Criteria:
  * 	homeType = apt, condo, townhouse, singleFamilyHome
@@ -27,7 +29,6 @@ import java.util.HashMap;
  * --Note-- start with craigslist
  * 
  * Real estate search sites without api's:
- * -Trulia
  * -Craigslist
  * -Hotpads.com
  * -Rent.com
@@ -55,34 +56,38 @@ public class Webpage {
 	
 	/**
 	 * Method constructs HTTP connection using urlObject.
-	 * @param searchParams: String array listing headers to be included with final URL.
-	 * @return: The established HTTP connection.
+	 * @param searchParams: String array listing headers to be included with final URL, if any.
+	 * @return: String representing the final URL for connection.
 	 */
-	public HttpURLConnection getConnection(String[] searchParams) {
-		HttpURLConnection connection = null;
+	public String getConnection(String[] searchParams) {
+		URL urlWithHeaders = null;
 		try {
-			connection = (HttpURLConnection) urlObject.openConnection();
-			connection.setRequestMethod("GET");
-			connection.setDoOutput(true);
-			DataOutputStream output = new DataOutputStream(connection.getOutputStream());
-			HashMap<String, String> parameters = getHeaders(searchParams, connection);
-			output.writeBytes(ParameterStringBuilder.getParameterString(parameters));
-			output.flush();
-			output.close();
-			return connection;
+			HttpURLConnection connection = (HttpURLConnection) urlObject.openConnection();
+			connection.connect();
+			if(searchParams.length > 0) {			
+				String parameters = getHeaders(searchParams, connection);
+				connection.disconnect();
+				try {
+					urlWithHeaders = new URL(url + parameters);
+					HttpURLConnection newConnection = (HttpURLConnection) urlWithHeaders.openConnection();
+					newConnection.connect();
+					return urlWithHeaders.toString();
+				}catch(MalformedURLException e) {
+					e.printStackTrace();
+				}
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		return connection;
+		return urlObject.toString();
 	}
 	
 	/**
 	 * Method reads the response from an HTTP connection.
 	 * @param connection: HttpURLConnection that the response comes from.
-	 * @return: StringBuffer that holds
+	 * @return: StringBuffer that holds the response content.
 	 */
-	public String readResponse(HttpURLConnection connection) {
+	public StringBuffer readResponse(HttpURLConnection connection) {
 		StringBuffer content = null;
 		try {
 			int status = connection.getResponseCode();
@@ -99,12 +104,30 @@ public class Webpage {
 		return content;
 	}
 
-	private HashMap<String, String> getHeaders(String[] searchParams, HttpURLConnection connection) {
-		HashMap<String, String> parameters = new HashMap<>();
+	/**
+	 * Private helper method to get headers for URL.
+	 * @param searchParams: String array that include all parameters for final URL.
+	 * @param connection: Established HTTP connection.
+	 * @return: the constructed headers.
+	 * TODO this should just return a header string to add as the final part of the URL
+	 */
+	private String getHeaders(String[] searchParams, HttpURLConnection connection) {
+		HashMap<String, String> headers = new HashMap<>();
+		StringBuilder resultString = new StringBuilder();
 		for(String item : searchParams) {
-			parameters.put(item, connection.getHeaderField(item));
+			headers.put(item, connection.getHeaderField(item));
 		}
-		return parameters;
+		try {
+			for(Map.Entry<String, String> entry : headers.entrySet()) {
+	          resultString.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+	          resultString.append("=");
+	          resultString.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+	          resultString.append("&");
+			}
+		}catch(UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+		return resultString.toString();
 	}
 }
  
