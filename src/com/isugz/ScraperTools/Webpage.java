@@ -39,13 +39,8 @@ public class Webpage {
 	public URL urlObject = null;
 	
 	/**
-	 * Get the redirect that redirects the page to filtered results
-	 * 	params: Array[] of headers
-	 * 
-	 */
-	/**
-	 * Constructor for Webpage Object; creates URL object from givenURL.
-	 * @param givenURL: String representing a base URL for Webpage.
+	 * Constructor for Webpage object takes a given URL as a String and parses it to a URL object.
+	 * @param givenURL: String representing a base URL.
 	 */
 	public Webpage(String givenURL) {
 		url = givenURL;
@@ -58,6 +53,11 @@ public class Webpage {
 		}
 	}
 	
+	/**
+	 * Method constructs HTTP connection using urlObject.
+	 * @param searchParams: String array listing headers to be included with final URL.
+	 * @return: The established HTTP connection.
+	 */
 	public HttpURLConnection getConnection(String[] searchParams) {
 		HttpURLConnection connection = null;
 		try {
@@ -77,17 +77,22 @@ public class Webpage {
 		return connection;
 	}
 	
-	public StringBuffer getResponse(HttpURLConnection connection) {
+	/**
+	 * Method reads the response from an HTTP connection.
+	 * @param connection: HttpURLConnection that the response comes from.
+	 * @return: StringBuffer that holds
+	 */
+	public String readResponse(HttpURLConnection connection) {
 		StringBuffer content = null;
 		try {
 			int status = connection.getResponseCode();
 			BufferedReader input = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-					String inputLine;
-					content = new StringBuffer();
-					while ((inputLine = input.readLine()) != null) {
-					    content.append(inputLine);
-					}
-					input.close();
+			String inputLine;
+			content = new StringBuffer();
+			while ((inputLine = input.readLine()) != null) {
+			    content.append(inputLine);
+			}
+			input.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
