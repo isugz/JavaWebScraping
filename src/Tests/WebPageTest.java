@@ -6,8 +6,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
+import org.jsoup.Connection;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -44,68 +47,67 @@ public class WebPageTest {
 		assertEquals(page.urlObject.toString(), baseUrl);
 	}
 	
-//	@Test
-//	public void whenHeadersGivengetDocumentUrlCorrectTest() {
-//		String baseUrl = "https://seattle.craigslist.org/d/housing/search/hhh";
-//		HashMap<String, String> searchParams = new HashMap<>();
-//		searchParams.put("postal", "98144");
-//		searchParams.put("max_price", "3000");
-//		searchParams.put("min_bedrooms", "2");
-//		searchParams.put("min_bathrooms", "1");
-//		String correctUrl = "https://seattle.craigslist.org/search/hhh?max_price=3000&min_bathrooms=1&min_bedrooms=2&postal=98144";
-//		Webpage page = new Webpage(baseUrl);
-//		Document doc = page.getDocument(baseUrl, searchParams);
-//		String url = doc.absUrl(baseUrl);
-//		System.out.println("constructed url: " + doc.baseUri() + "\nactual url: " + correctUrl);
-////		assertEquals(url, correctUrl);
-//		fail("how do I get the full url with jsoup?");
-//	}
 	
 	@Test
-	public void whenNoHeadersgetConnectionReturnsCorrectUrlTest() {
+	public void documentRetrievedBaseUrlCorrectTest() throws IOException {
 		String baseUrl = "https://seattle.craigslist.org/d/housing/search/hhh";
 		HashMap<String, String> searchParams = new HashMap<>();
 		Webpage page = new Webpage(baseUrl);
-		Document doc = page.getDocument(baseUrl, searchParams);
+		Connection connection = page.getJsoupConnection(baseUrl, searchParams);
+		Document doc = page.getDocument(connection);
 		String url = doc.baseUri();
 		assertEquals(url, baseUrl);
 	}
 	
-	// Test that the document returned contains only items that fit within search parameters
+//	@Test
+//	public void documentRetrievedContainsCorrectPostalCodesTest() {
+//		String baseUrl = "https://seattle.craigslist.org/d/housing/search/hhh";
+//		HashMap<String, String> searchParams = new HashMap<>();
+//		searchParams.put("postal", "98144");
+//		searchParams.put("search_distance", "1");
+//		searchParams.put("max_price", "3000");
+//		searchParams.put("min_bedrooms", "2");
+//		searchParams.put("min_bathrooms", "1");
+//		Webpage page = new Webpage(baseUrl);
+//		Document doc = page.getDocument(baseUrl, searchParams);
+//		int maxPrice = 3000;
+//		Elements elements = doc.select("p.result-info > span.result-price");
+//		 for (Element e : elements) {
+//			 System.out.println("price: " + e.text());
+//			 int htmlPrice = Integer.parseInt(e.text());
+//			 assertTrue(htmlPrice <= maxPrice);
+//		 }
+//	}
+	
 	@Test
-	public void documentRetrievedContainsCorrectPostalCodesTest() {
+	public void documentRetrievedContainsCorrectMaximumPriceTest() throws IOException {
 		String baseUrl = "https://seattle.craigslist.org/d/housing/search/hhh";
-		HashMap<String, String> searchParams = new HashMap<>();
-		searchParams.put("postal", "98144");
+		// https://seattle.craigslist.org/d/housing/search/hhh?max_price=3000&min_bedrooms=2&postal=98144&search_distance=1&min_bathrooms=1
+		Map<String, String> searchParams = new HashMap<>();
 		searchParams.put("max_price", "3000");
-		searchParams.put("min_bedrooms", "2");
-		searchParams.put("min_bathrooms", "1");
 		Webpage page = new Webpage(baseUrl);
-		Document doc = page.getDocument(baseUrl, searchParams);
+		Connection connection = page.getJsoupConnection(baseUrl, searchParams);
+		Document doc = page.getDocument(connection);
 		int maxPrice = 3000;
-		// check all postal codes
-		Elements elements = doc.select("p.result-info > span.result-price");
+		Elements elements = doc.select("span.result-price");
+		System.out.println(doc.baseUri());
+		System.out.println("elements returned:" + elements.text().length());
 		 for (Element e : elements) {
-//		      assertThat(Integer.parseInt(e.text()),lessThan(3000));
-			 System.out.println("price: " + e.text());
-			 int htmlPrice = Integer.parseInt(e.text());
+			 System.out.println("price is: " + e.text().substring(1, e.text().length()));
+			 int htmlPrice = Integer.parseInt(e.text().substring(1, e.text().length()));
 			 assertTrue(htmlPrice <= maxPrice);
 		 }
 	}
-//	
-//	@Test
-//	public void documentRetrievedContainsCorrectMaximumPriceTest() {
-//		fail("not implemented");
-//	}
-//	
-//	@Test
-//	public void documentRetrievedContainsCorrectMinimumBedroomsTest() {
-//		fail("not implemented");
-//	}
-//	
-//	@Test void documentRetrievedContainsCorrectMinimumBathroomsTest() {
-//		fail("not implemented");
-//	}
-//	
+	
+	@Test
+	public void documentRetrievedContainsCorrectMinimumBedroomsTest() {
+		fail("not implemented");
+	}
+	
+	@Test 
+	public void documentRetrievedContainsCorrectMinimumBathroomsTest() {
+		fail("not implemented");
+	}
+	
 
 }

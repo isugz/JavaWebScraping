@@ -15,6 +15,7 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -57,18 +58,29 @@ public class Webpage {
 		}
 	}
 	
+	public Connection getJsoupConnection(String url, Map<String, String> headers) {
+		Connection connection = null;
+		connection = Jsoup.connect(url).ignoreContentType(true).ignoreHttpErrors(true);
+		if(!(headers == null || headers.isEmpty())) {
+			for(Map.Entry<String, String> header : headers.entrySet()) {
+				connection.header(header.getKey(), header.getValue());
+			}
+			System.out.println(connection.toString());
+		}
+		return connection;
+				
+	}
+	
 	/**
 	 * Public method to retrieve document from given URL.
 	 * @param url: String representing final version of request URL.
 	 * @return: Document (HTML) retrieved from URL.
+	 * @throws UnsupportedEncodingException 
 	 */
-	public Document getDocument(String url, HashMap<String, String> headers) {
+	public Document getDocument(Connection connection) {
 		Document document = null;
 		try {
-			document = Jsoup.connect(url).headers(headers).get();
-			
-			// TODO Jsoup.connect is designed for method chaining; address cookies here
-			System.out.println(document.html());
+			document = connection.get();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
