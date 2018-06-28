@@ -24,6 +24,8 @@ public class PageDoesNotExistTest {
 	@Test(expected = PageDoesNotExist.class)
 	public void testExceptionIsRaisedOnInvalidWebpage() {
 		Scraper mothScraper = new Scraper();
+		// Make Webpage
+		// give it non-existent headers
 		String[] data = {"city", "state", "type"};
 		Object testObject = mothScraper.scrape(data);
 	}
@@ -35,6 +37,8 @@ public class PageDoesNotExistTest {
 	@Test
 	public void testExceptionNotRaisedOnValidWebpage() throws PageDoesNotExist{
 		Scraper mothScraper = new Scraper();
+		// Make webpage
+		// Give it existing headers
 		String[] data = {"city", "state", "type"};
 		Object testObject = mothScraper.scrape(data);
 	}

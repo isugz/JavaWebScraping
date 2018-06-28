@@ -62,13 +62,13 @@ public class Webpage {
 	 * @param searchParams: String array listing headers to be included with final URL, if any.
 	 * @return: String representing the final URL for connection.
 	 */
-	public String getConnectionUrl(String[] searchParams) {
+	public String getConnectionUrl(HashMap<String, String> searchParams) {
 		URL urlWithHeaders = null;
 		try {
 			HttpURLConnection connection = (HttpURLConnection) urlObject.openConnection();
 			connection.connect();
-			if(searchParams.length > 0) {			
-				String parameters = getHeaders(searchParams, connection);
+			if(searchParams.isEmpty()) {			
+				String parameters = getHeaderString(searchParams, connection);
 				connection.disconnect();
 				try {
 					urlWithHeaders = new URL(url + parameters);
@@ -92,14 +92,11 @@ public class Webpage {
 	 * @return: the constructed headers.
 	 * TODO this should just return a header string to add as the final part of the URL
 	 */
-	private String getHeaders(String[] searchParams, HttpURLConnection connection) {
-		HashMap<String, String> headers = new HashMap<>();
+	private String getHeaderString(HashMap<String, String> searchParams, HttpURLConnection connection) {
 		StringBuilder resultString = new StringBuilder();
-		for(String item : searchParams) {
-			headers.put(item, connection.getHeaderField(item));
-		}
+		
 		try {
-			for(Map.Entry<String, String> entry : headers.entrySet()) {
+			for(Map.Entry<String, String> entry : searchParams.entrySet()) {
 	          resultString.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
 	          resultString.append("=");
 	          resultString.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
