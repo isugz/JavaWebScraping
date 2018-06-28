@@ -3,16 +3,10 @@
  */
 package com.isugz.ScraperTools;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.jsoup.Connection;
@@ -58,15 +52,12 @@ public class Webpage {
 		}
 	}
 	
-	public Connection getJsoupConnection(String url, Map<String, String> headers) {
-		Connection connection = null;
-		connection = Jsoup.connect(url).ignoreContentType(true).ignoreHttpErrors(true);
-		if(!(headers == null || headers.isEmpty())) {
-			for(Map.Entry<String, String> header : headers.entrySet()) {
-				connection.header(header.getKey(), header.getValue());
-			}
-			System.out.println(connection.toString());
-		}
+	public Connection getJsoupConnection(String url, Map<String, String> data) {
+		Connection connection;
+		if(!(data == null || data.isEmpty()))
+			connection = Jsoup.connect(url).ignoreContentType(true).ignoreHttpErrors(true).data(data);
+		else 
+			connection = Jsoup.connect(url).ignoreContentType(true).ignoreHttpErrors(true);
 		return connection;
 				
 	}
