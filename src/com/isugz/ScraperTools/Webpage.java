@@ -67,11 +67,11 @@ public class Webpage {
 		try {
 			HttpURLConnection connection = (HttpURLConnection) urlObject.openConnection();
 			connection.connect();
-			if(searchParams.isEmpty()) {			
+			if(!searchParams.isEmpty()) {			
 				String parameters = getHeaderString(searchParams, connection);
 				connection.disconnect();
 				try {
-					urlWithHeaders = new URL(url + parameters);
+					urlWithHeaders = new URL(url + "/search/hhs?" + parameters);
 					HttpURLConnection newConnection = (HttpURLConnection) urlWithHeaders.openConnection();
 					newConnection.connect();
 					return urlWithHeaders.toString();
@@ -94,7 +94,6 @@ public class Webpage {
 	 */
 	private String getHeaderString(HashMap<String, String> searchParams, HttpURLConnection connection) {
 		StringBuilder resultString = new StringBuilder();
-		
 		try {
 			for(Map.Entry<String, String> entry : searchParams.entrySet()) {
 	          resultString.append(URLEncoder.encode(entry.getKey(), "UTF-8"));

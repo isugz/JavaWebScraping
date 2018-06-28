@@ -2,6 +2,8 @@ package Tests;
 
 import static org.junit.Assert.*;
 
+import java.util.HashMap;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -37,15 +39,28 @@ public class WebPageTest {
 	
 	@Test
 	public void whenHeadersGivengetConnectionReturnsCorrectUrlTest() {
-		// https://seattle.craigslist.org/search/hhh?postal=98144&max_price=3000&min_bedrooms=3&min_bathrooms=1&availabilityMode=0&sale_date=all+dates
 		String baseUrl = "https://seattle.craigslist.org";
-		// TODO make hashmap
-		String[] searchParams = {"postal", "max_price", "min_bedrooms", "min_bathrooms"};
+		HashMap<String, String> searchParams = new HashMap<>();
+		searchParams.put("postal", "98144");
+		searchParams.put("max_price", "3000");
+		searchParams.put("min_bedrooms", "2");
+		searchParams.put("min_bathrooms", "1");
 		String correctUrl = "https://seattle.craigslist.org/search/hhh?postal=98144&max_price=3000&min_bedrooms=3&min_bathrooms=1&availabilityMode=0&sale_date=all+dates";
+		// https://seattle.craigslist.org/max_price=3000&min_bedrooms=2&postal=98144&min_bathrooms=1&
+
 		Webpage page = new Webpage(baseUrl);
-//		String url = page.getConnectionUrl(searchParams);
-//		assertEquals(url, correctUrl);
-		
+		String url = page.getConnectionUrl(searchParams);
+		System.out.println(url);
+		assertEquals(url, correctUrl);
+	}
+	
+	@Test
+	public void whenNoHeadersgetConnectionReturnsCorrectUrlTest() {
+		String baseUrl = "https://seattle.craigslist.org";
+		HashMap<String, String> searchParams = new HashMap<>();
+		Webpage page = new Webpage(baseUrl);
+		String url = page.getConnectionUrl(searchParams);
+		assertEquals(url, baseUrl);
 	}
 
 }
