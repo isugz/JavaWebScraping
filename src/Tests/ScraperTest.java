@@ -12,7 +12,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * @author sugz
+ * @author Ivy Sugars
  *
  */
 public class ScraperTest {

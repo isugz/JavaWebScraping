@@ -3,10 +3,9 @@
  */
 package com.isugz.JavaWebScraper;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import java.net.*;
-import java.io.*;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 /**
  * @author Ivy Sugars
@@ -20,10 +19,47 @@ import java.io.*;
  * 	maximumPrice = $3000
  * 	posted = range(16 days)
  */
-public class Scraper {
 
-	public Object scrape(String[] data) {
-		// TODO Auto-generated method stub
+public class Scraper {
+	public Document document;
+	
+	/**
+	 * Constructor takes a Document to scrape.
+	 * @param htmlToScrape
+	 */
+	public Scraper(Document htmlToScrape) {
+		this.document = htmlToScrape;
+	}
+
+	/**
+	 * Method scrapes a Document for a set of data.
+	 * @return: JSON formatted text of the scraped data.
+	 * TODO look at making a request object that holds the list of data to scrape from a document
+	 * 		and the html id's, tags, & classes to use
+	 */
+	public Object scrape(String[] requestedData, String contentId, String contentTag) {
+//		JsonObject jsonString = new JsonObject();
+		StringBuilder jsonString = new StringBuilder();
+		Element resultContent = this.document.getElementById(contentId);
+		Elements resultListItems = resultContent.getElementsByTag(contentTag);
+		for(Element item : resultListItems) {
+			// iterate through the requestData, adding to a JSON formatted string
+			for(String request : requestedData) {
+			}
+		}
+		/**
+		 * traverse the html
+		 * pull data that matches requestedData elements
+		 * 
+		 * 
+		 * we are looking for the <ul>
+		 * we want to loop through the <li> below
+		 * 
+		 * 
+		 * for each result in html
+		 * 		get requested info
+		 * return info-->text?
+		 */
 		return null;
 	}
 	
