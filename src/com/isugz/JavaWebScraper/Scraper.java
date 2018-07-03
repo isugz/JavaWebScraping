@@ -12,6 +12,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.isugz.ScraperTools.Webpage;
+import com.isugz.ScraperTools.buildRequestedDataFromHtml;
 
 /**
  * @author Ivy Sugars
@@ -28,6 +29,7 @@ import com.isugz.ScraperTools.Webpage;
 
 public class Scraper {
 	public Document document;
+	public buildRequestedDataFromHtml data;
 	
 	/**
 	 * Constructor takes a Document to scrape.
@@ -39,17 +41,18 @@ public class Scraper {
 
 	/**
 	 * Method scrapes a Document for a set of data.
-	 * @return: JSON formatted text of the scraped data.
-	 * TODO look at making a request object that holds the list of data to scrape from a document
-	 * 		and the html id's, tags, & classes to use
+	 * @return: A string with scraped data.
+	 * TODO look at making a builder method to handle the requested data and handing scrape() that object
+	 * 		scrape(scrapeDataBuilder builder)
 	 */
 	public String scrape(String[] requestedData, String contentId, String contentClass) {
 		StringBuilder resultString = new StringBuilder();
 		Element resultContent = this.document.getElementById(contentId);
 		Elements resultItems = resultContent.getElementsByClass(contentClass);
 		for(Element item : resultItems) {
-			resultString.append("{");
-			resultString.append(":");
+			resultString.append("{\n");
+			resultString.append(item.getElementsByClass(requestedData[3]).attr("href"));
+			resultString.append(":\n");
 			String houseInformation = item.getElementsByClass(requestedData[0]).text();
 			String price = item.getElementsByClass(requestedData[1]).text();
 			String neighborhood = item.getElementsByClass(requestedData[2]).text();
@@ -57,7 +60,7 @@ public class Scraper {
 			resultString.append(houseInformation);
 			resultString.append(price);
 			resultString.append(neighborhood);
-			resultString.append("}");
+			resultString.append("\n}\n");
 			
 		}
 		System.out.println(resultString.toString());

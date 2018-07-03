@@ -25,11 +25,23 @@ import com.isugz.ScraperTools.Webpage;
  */
 public class ScraperTest {
 
+	static String baseUrl = "https://seattle.craigslist.org/d/housing/search/hhh";
+	static Webpage page = new Webpage(baseUrl);
+	static Map<String, String> searchParams = new HashMap<>();
+	static Document doc;
+	Scraper scraper = new Scraper(doc);
+	
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		searchParams.put("postal", "98144");
+		searchParams.put("max_price", "3000");
+		searchParams.put("min_bedrooms", "3");
+		searchParams.put("min_bathrooms", "1");
+		Connection connection = page.getJsoupConnection(baseUrl, searchParams);
+		doc = page.getDocument(connection);
 	}
 
 	/**
@@ -44,6 +56,7 @@ public class ScraperTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
+		
 	}
 
 	/**
@@ -55,20 +68,11 @@ public class ScraperTest {
 
 	@Test
 	public void test() {
-		String baseUrl = "https://seattle.craigslist.org/d/housing/search/hhh";
-		Webpage page = new Webpage(baseUrl);
-		Map<String, String> searchParams = new HashMap<>();
-		searchParams.put("postal", "98144");
-		searchParams.put("max_price", "3000");
-		searchParams.put("min_bedrooms", "3");
-		searchParams.put("min_bathrooms", "1");
-		Connection connection = page.getJsoupConnection(baseUrl, searchParams);
-		Document doc = page.getDocument(connection);
-		Scraper scraper = new Scraper(doc);
-		String[] requestedData = {"housing", "result-price", "result-hood"};
+		String[] requestedData = {"housing", "result-price", "result-hood", "result-title hdrlnk"};
 		String contentId = "sortable-results";
-		String contentClass = "result-meta";
-		scraper.scrape(requestedData, contentId, contentClass);
+		String contentClass = "result-info";
+		String results = scraper.scrape(requestedData, contentId, contentClass);
+		assertFalse(results.isEmpty());
 //		fail("Not yet implemented");
 	}
 
