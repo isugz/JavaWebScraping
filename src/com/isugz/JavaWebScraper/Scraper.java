@@ -12,7 +12,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.isugz.ScraperTools.Webpage;
-import com.isugz.ScraperTools.buildRequestedDataFromHtml;
+import com.isugz.ScraperTools.BuildRequestedDataFromHtml;
 
 /**
  * @author Ivy Sugars
@@ -29,7 +29,7 @@ import com.isugz.ScraperTools.buildRequestedDataFromHtml;
 
 public class Scraper {
 	public Document document;
-	public buildRequestedDataFromHtml data;
+	public BuildRequestedDataFromHtml data;
 	
 	/**
 	 * Constructor takes a Document to scrape.
@@ -63,7 +63,6 @@ public class Scraper {
 			resultString.append("\n}\n");
 			
 		}
-		System.out.println(resultString.toString());
 		return resultString.toString();
 	}
 }

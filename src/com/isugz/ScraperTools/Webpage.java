@@ -16,22 +16,7 @@ import org.jsoup.nodes.Document;
 /**
  * @author Ivy Sugars
  * 
- * Search Criteria:
- * 	homeType = apt, condo, townhouse, singleFamilyHome
- * 	location = neighborhoods(UniversityDistrict to BeaconHill/Mt Baker)
- * 	numberOfBedrooms = 3+
- * 	numberOfBathrooms = 1+
- * 	maximumPrice = $3000
- * 	posted = range(16 days)
- * 
- * --Note-- start with craigslist
- * 
- * Real estate search sites without api's:
- * -Craigslist
- * -Hotpads.com
- * -Rent.com
- * -Homes.com
- * -
+ * TODO: Give the Webpage a GoogleSearch with the urls to scrape
  */
 public class Webpage {
 	public String url;
