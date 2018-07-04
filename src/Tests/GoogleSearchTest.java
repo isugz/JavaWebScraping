@@ -3,24 +3,20 @@ package Tests;
 import static org.junit.Assert.*;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.isugz.ScraperTools.GoogleSearch;
+
 public class GoogleSearchTest {
-	// TODO: implement tests
-
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-	}
-
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-	}
+	// TODO: implement more tests
+	public String[] keywords = {"Seattle", "rental"};
+	public String expectedSearchUrl = "https://www.google.com/search?q=Seattle+rental&num=5";
+	GoogleSearch search;
 
 	@Before
 	public void setUp() throws Exception {
+		search = new GoogleSearch(keywords);
 	}
 
 	@After
@@ -28,8 +24,17 @@ public class GoogleSearchTest {
 	}
 
 	@Test
-	public void test() {
-		fail("Not yet implemented");
+	public void googleSearchCreatedSearchUrlCorrectTest() {
+		String actualSearchUrl = search.url.toString(); 
+		assertEquals(expectedSearchUrl, actualSearchUrl);
+	}
+	
+	@Test
+	public void googleSearchCreatedSetNumberOfUrlsRetrievedTest() {
+		search = new GoogleSearch(keywords);
+		int expectedNumberResults = Integer.parseInt(GoogleSearch.NUMBER_OF_RESULTS);
+		int actualNumberResults = search.listOfUrls.size();
+		assertEquals(expectedNumberResults, actualNumberResults);
 	}
 
 }

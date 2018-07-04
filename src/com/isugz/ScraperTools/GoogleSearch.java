@@ -6,6 +6,7 @@ package com.isugz.ScraperTools;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -19,9 +20,9 @@ import org.jsoup.select.Elements;
  */
 public class GoogleSearch {
 	
-	public static final String SEARCH_URL = "www.google.com/search";
+	public static final String SEARCH_URL = "https://www.google.com/search";
 	public static final String NUMBER_OF_RESULTS = "5";
-	String[] listOfUrls = new String[Integer.parseInt(GoogleSearch.NUMBER_OF_RESULTS)];
+	public ArrayList<String> listOfUrls = new ArrayList<>();
 	public URL url;
 	public String[] searchTerms;
 	
@@ -51,8 +52,8 @@ public class GoogleSearch {
 			query.append("+");
 			query.append(this.searchTerms[i]);
 		}
-		query.append(GoogleSearch.NUMBER_OF_RESULTS);
-		this.url = new URL(query.toString());
+		query.append("&num=" + GoogleSearch.NUMBER_OF_RESULTS);
+		this.url = new URL(GoogleSearch.SEARCH_URL + query.toString());
 	}
 	
 	/**
@@ -89,11 +90,9 @@ public class GoogleSearch {
 		connection = this.getJsoupConnection();
 		document = this.getDocument(connection);
 		Elements resultUrls = document.select("h3.r > a");
-		int counter = 0;
+		
 		for(Element item: resultUrls) {
-			this.listOfUrls[counter] = item.getElementsByTag("a").attr("href");
-			System.out.println(this.listOfUrls[counter]);
-			counter++;
+			this.listOfUrls.add(item.getElementsByTag("a").attr("href"));
 		}
 	}
 
