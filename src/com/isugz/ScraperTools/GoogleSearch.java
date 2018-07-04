@@ -15,7 +15,7 @@ import org.jsoup.select.Elements;
 
 /**
  * @author Ivy Sugars
- * 
+ * Class that handles creating a google search from a set of keywords, that yields a list of resulting URLs.
  */
 public class GoogleSearch {
 	
@@ -26,8 +26,8 @@ public class GoogleSearch {
 	public String[] searchTerms;
 	
 	/**
-	 * 
-	 * @param keywords
+	 * Constructor creates a google search from keywords, initializing the resulting list of URLs.
+	 * @param keywords: String array whose elements represent the search terms to use for a google search.
 	 */
 	public GoogleSearch(String[] keywords) {
 		this.searchTerms = keywords;
@@ -41,11 +41,10 @@ public class GoogleSearch {
 	}
 	
 	/**
-	 * 
-	 * @return
+	 * Private method to construct a search URL.
 	 * @throws MalformedURLException
 	 */
-	public URL constructSearchURL() throws MalformedURLException {
+	private void constructSearchURL() throws MalformedURLException {
 		StringBuilder query = new StringBuilder();
 		query.append("?q=" + this.searchTerms[0]);
 		for(int i = 1; i < this.searchTerms.length; i++) {
@@ -54,12 +53,11 @@ public class GoogleSearch {
 		}
 		query.append(GoogleSearch.NUMBER_OF_RESULTS);
 		this.url = new URL(query.toString());
-		return this.url;
 	}
 	
 	/**
-	 * 
-	 * @return
+	 * Private method to get a Jsoup connection from GoogleSearch url.
+	 * @return: The Jsoup connection.
 	 */
 	private Connection getJsoupConnection() {
 		Connection connection;
@@ -68,9 +66,9 @@ public class GoogleSearch {
 	}
 	
 	/**
-	 * 
-	 * @param connection
-	 * @return
+	 * Private method to get an HTML document from a Jsoup connection.
+	 * @param connection: The Jsoup connection created from a given URL.
+	 * @return: Document with the parsed HTML.
 	 */
 	private Document getDocument(Connection connection) {
 		Document document = null;
@@ -83,10 +81,9 @@ public class GoogleSearch {
 	}
 	
 	/**
-	 * 
-	 * @return
+	 * Private method to retrieve the URLs from a google search.
 	 */
-	public String[] getUrls() {
+	private void getUrls() {
 		Connection connection;
 		Document document;
 		connection = this.getJsoupConnection();
@@ -98,7 +95,6 @@ public class GoogleSearch {
 			System.out.println(this.listOfUrls[counter]);
 			counter++;
 		}
-		return this.listOfUrls;
 	}
 
 }
