@@ -3,6 +3,8 @@ package Tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -80,8 +82,20 @@ public class WebPageTest {
 		Elements elements = doc.select("span.housing");
 		 for (Element e : elements) {
 			 int htmlMinimumBedrooms = Integer.parseInt(e.text().substring(0, 1));
-			 System.out.println("bedrooms: " + htmlMinimumBedrooms);
+//			 System.out.println("bedrooms: " + htmlMinimumBedrooms);
 			 assertTrue(htmlMinimumBedrooms >= minimumBedrooms);
 		 }
+	}
+	
+	
+	@Test
+	public void getFormDataKeyNamesTest() {
+		ArrayList<String> formData = new ArrayList<>();
+		// {max_price, min_bed, min_bath}
+		String[] values = {"3000", "3", "2"};
+		Connection connection = page.getJsoupConnection(baseUrl, null);
+		Document doc = page.getDocument(connection);
+		formData = page.findFormDataKeywords(doc);
+//		assertEquals(baseUrl, url);
 	}
 }
