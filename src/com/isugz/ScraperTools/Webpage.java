@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -22,7 +23,6 @@ import org.jsoup.select.Elements;
 /**
  * @author Ivy Sugars
  * 
- * TODO: implement redirects to find correct search urls
  */
 public class Webpage {
 	public String url;
@@ -43,19 +43,7 @@ public class Webpage {
 		}
 	}
 	
-	
-	/**
-	 * Get connection to base url
-	 * Get html document
-	 * Find key attribute "name=" in <form> that include key words
-	 * Keywords: "max" and ("price" or "rent")
-	 * 			 "min" and "bedroom"
-	 * 			 "min" and "bathroom"
-	 * 			 "unit" and "type"
-	 * 			 "pet" or "dog"
-	 */
-	
-	
+		
 	/**
 	 * 
 	 * @param url
@@ -93,17 +81,28 @@ public class Webpage {
 	 * @param document: Document containing html from a base url.
 	 * @return: Arraylist with the available names of keys for search queries.
 	 */
-	public ArrayList<String> findFormDataKeywords(Document document) {
+	public List<String> findFormDataKeywords(Document document) {
 		String[] keys = {"price", "bedroom", "bathroom", "type", "pet", "unit", "dog"};
-		ArrayList<Elements> nameList = new ArrayList<>();
-		ArrayList<String> names = new ArrayList<>();
+		ArrayList<String> nameList = new ArrayList<>();
 		for(String key: keys) {
-			nameList.add(document.getElementsByAttributeValueContaining("name", key));
-			for(Elements item: nameList) {
-				names.add(item.attr("name"));
+			Elements namesFound = (document.getElementsByAttributeValueContaining("name", key));
+			for(Element name: namesFound) {
+				nameList.add(name.attr("name"));
 			}
 		}
-		return names;
+		List<String> noDuplicatesNameList = nameList.stream().distinct().collect(Collectors.toList());
+		System.out.println(noDuplicatesNameList);
+		return noDuplicatesNameList;
+	}
+	
+	/**
+	 * TODO: reorganize? implement the redirect; user interaction will require values to hash to available
+	 * 			keys gotten from form data.
+	 * @return
+	 */
+	public Map<String, String> getRedirectData() {
+		
+		return null;
 	}
 	
 }

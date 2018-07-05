@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.jsoup.Connection;
@@ -19,7 +20,7 @@ import org.junit.Test;
 import com.isugz.ScraperTools.Webpage;
 
 public class WebPageTest {
-	String baseUrl = "https://seattle.craigslist.org/d/housing/search/hhh";
+	String baseUrl = "https://seattle.craigslist.org/search/apa";
 	Webpage page = new Webpage(baseUrl);
 	Map<String, String> searchParams = new HashMap<>();
 	
@@ -47,7 +48,9 @@ public class WebPageTest {
 		Connection connection = page.getJsoupConnection(baseUrl, noSearchParams);
 		Document doc = page.getDocument(connection);
 		String url = doc.baseUri();
-		assertEquals(baseUrl, url);
+		String expectedUrl = "https://seattle.craigslist.org/search/apa";
+//		System.out.println("base url with no params: " + url);
+		assertEquals(expectedUrl, url);
 	}
 	
 	
@@ -56,8 +59,8 @@ public class WebPageTest {
 		Connection connection = page.getJsoupConnection(baseUrl, searchParams);
 		Document doc = page.getDocument(connection);
 		String url = doc.baseUri();
-		String expectedUrl = "https://seattle.craigslist.org/d/housing/search/hhh?max_price=3000&min_bedrooms=3&"
-									+ "postal=98144&min_bathrooms=1";
+		String expectedUrl = "https://seattle.craigslist.org/search/apa?max_price=3000&min_bedrooms=3&postal=98144&min_bathrooms=1";
+//		System.out.println("baseurl with params: " + url);
 		assertEquals(expectedUrl, url);
 	}
 	
@@ -90,12 +93,18 @@ public class WebPageTest {
 	
 	@Test
 	public void getFormDataKeyNamesTest() {
-		ArrayList<String> formData = new ArrayList<>();
-		// {max_price, min_bed, min_bath}
-		String[] values = {"3000", "3", "2"};
+		List<String> formData = new ArrayList<>();
+		String[] keys = {"min_price", "max_price", "min_bedrooms", "max_bedrooms", "min_bathrooms",
+							"max_bedrooms", "pets_cat", "pets_dog"};
 		Connection connection = page.getJsoupConnection(baseUrl, null);
 		Document doc = page.getDocument(connection);
+//		System.out.println(doc.baseUri());
+//		System.out.println(doc.getElementsByAttribute("name"));
 		formData = page.findFormDataKeywords(doc);
-//		assertEquals(baseUrl, url);
+		for(String item: keys) {
+//			System.out.println(item);
+//			System.out.println(formData.contains(item));
+			assertTrue(formData.contains(item));
+		}
 	}
 }
