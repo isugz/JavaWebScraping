@@ -5,13 +5,10 @@ package com.isugz.ScraperTools;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.jsoup.Connection;
@@ -33,11 +30,12 @@ public class Webpage {
 	private String maxBed, minBed;
 	private String maxBath, minBath;
 	private String petDog, petCat;
+	private Boolean redirect;
 	
 	// not parameters
 	private Document document = null;
 	private Map<String, String> data = new HashMap<>(); 
-	
+	private Map<String, String> temporaryData = new HashMap<>();
 	
 	/**
 	 * Public method gets the value of the Webpage's URL.
@@ -124,30 +122,10 @@ public class Webpage {
 	}
 	
 	/**
-	 * Constructor for Webpage object takes a given URL as a String and HashMap containing header information.
-	 * @param givenURL: String representing a base URL.
-	 * @param data: HashMap containing header information.
-	 * TODO: use a builder design pattern for this
+	 * Constructor for constructing a Webpage object with or without search parameters.
+	 * @param builder: Builder object with all required and optional parameters set.
 	 */
-	public Webpage(String givenURL, Map<String, String> data) {
-		this.data = data;
-		this.url = givenURL;
-		try {
-			new URL(url);
-		}
-		catch(MalformedURLException e) {
-			System.out.print("The URL was malformed: ");
-			e.printStackTrace();
-		}
-	}
-	
 	private Webpage(WebpageBuilder builder) {
-		/**
-		 * private String maxPrice, minPrice;
-	private String maxBed, minBed;
-	private String maxBath, minBath;
-	private String petDog, petCat;
-		 */
 		this.url = builder.url;
 		this.maxPrice = builder.maxPrice;
 		this.minPrice = builder.minPrice;
@@ -157,90 +135,40 @@ public class Webpage {
 		this.minBath = builder.minBath;
 		this.petDog = builder.petDog;
 		this.petCat = builder.petCat;
+		this.redirect = builder.redirect;
+		this.setTemporaryData();
 	}
 	
-	// Builder Class
-	public static class WebpageBuilder{
-		// required parameters
-		private String url; 
-		
-		// optional parameters
-		private String maxPrice, minPrice;
-		private String maxBed, minBed;
-		private String maxBath, minBath;
-		private String petDog, petCat;
-		
-		/**
-		 * 
-		 * @param url
-		 */
-		public WebpageBuilder(String url) {
-			this.url = url;
-		}
-		
-		
-		public WebpageBuilder setMaxPrice(String price) {
-			this.maxPrice = price;
-			return this;
-		}
-		
-		
-		public WebpageBuilder setMinPrice(String price) {
-			this.minPrice = price;
-			return this;
-		}
-		
-		
-		public WebpageBuilder setMaxBed(String beds) {
-			this.maxBed = beds;
-			return this;
-		}
-		
-		
-		public WebpageBuilder setMinBed(String beds) {
-			this.minBed = beds;
-			return this;
-		}
-		
-		
-		public WebpageBuilder setMaxBath(String baths) {
-			this.maxBath = baths;
-			return this;
-		}
-		
-		
-		public WebpageBuilder setMinBath(String baths) {
-			this.minBath = baths;
-			return this;
-		}
-		
-		
-		public WebpageBuilder setPetDogs(String dogs) {
-			this.petDog = dogs;
-			return this;
-		}
-		
-		
-		public WebpageBuilder setPetCats(String cats) {
-			this.petCat = cats;
-			return this;
-		}
-		
-		
-		public Webpage build() {
-			return new Webpage(this);
-		}
+	/**
+	 * Private method to set a hashmap to possible search parameter key, value pairs based on parameters given during construction.
+	 */
+	private void setTemporaryData() {
+		// construct temp hash map of search params; will include nulls
+		this.temporaryData.put("max price", this.maxPrice);
+		this.temporaryData.put("max rent", this.maxPrice);
+		this.temporaryData.put("min price", this.minPrice);
+		this.temporaryData.put("min rent", this.minPrice);
+		this.temporaryData.put("max bed", this.maxBed);
+		this.temporaryData.put("min bed", this.minBed);
+		this.temporaryData.put("max bath", this.maxBath);
+		this.temporaryData.put("pet dog", this.petDog);
+		this.temporaryData.put("pet cat", this.petCat);
+		String isPetAllowed;
+		if(this.petCat.isEmpty() && this.petDog.isEmpty())
+			isPetAllowed = "0";
+		else
+			isPetAllowed = "1";
+		this.temporaryData.put("pet", isPetAllowed);
 	}
 	
-		
+	
 	/**
 	 * Public method gets an HTTP connection from Jsoup using a specified URL.
-	 * @param data: hashmap where keys=search parameters and values=value of search parameter.
 	 * @return: Connection created from URL with any search parameters applied.
 	 */
-	public Connection getJsoupConnection(Map<String, String> data) {
+	public Connection getJsoupConnection() {
 		Connection connection;
-		if(!(data == null || data.isEmpty()))
+		if(this.redirect == true)
 			connection = this.getRedirect();
 		else 
 			connection = Jsoup.connect(this.url).ignoreContentType(true).ignoreHttpErrors(true);
@@ -256,18 +184,8 @@ public class Webpage {
 	public Connection getRedirect() {
 		ArrayList<String> availableKeywords = (ArrayList)this.findFormDataKeywords();
 //		System.out.println("available keywords: " + availableKeywords);
-		Map<String, String> newData = new HashMap<>();
-		// TODO: make this method more efficient
-		for(Map.Entry<String, String> entry: data.entrySet()) {
-			String[] keyDescription = entry.getKey().toString().split(" ");
-			for(String item: availableKeywords) {
-				if(item.contains(keyDescription[0]) && item.contains(keyDescription[1]))
-					newData.put(item.toString(), entry.getValue().toString());
-			}
-		}
-//		System.out.println(newData);
-		
-		return Jsoup.connect(this.url).ignoreContentType(true).ignoreHttpErrors(true).data(newData);
+		this.setData(availableKeywords);
+		return Jsoup.connect(this.url).ignoreContentType(true).ignoreHttpErrors(true).data(this.data);
 	}
 	
 	/**
@@ -275,7 +193,7 @@ public class Webpage {
 	 * @return: Arraylist with the available names of keys for search queries.
 	 */
 	public List<String> findFormDataKeywords() {
-		String[] keys = {"price", "bedroom", "bathroom", "type", "pet", "unit", "dog", "cat"};
+		String[] keys = {"price", "rent", "bedroom", "bathroom", "type", "pet", "unit", "dog", "cat"};
 		ArrayList<String> nameList = new ArrayList<>();
 		for(String key: keys) {
 			Elements namesFound = (this.document.getElementsByAttributeValueContaining("name", key));
@@ -289,10 +207,26 @@ public class Webpage {
 	}	
 	
 	/**
+	 * Private method used to set the hashMap data, containing the final key, value pairs for valid search parameters.
+	 * @param availableKeywords: ArrayList containing all valid keywords for search parameters.
+	 */
+	private void setData(ArrayList<String> availableKeywords) {
+	// TODO: make this method more efficient
+		for(Map.Entry<String, String> entry: this.temporaryData.entrySet()) {
+			String[] keyDescription = entry.getKey().toString().split(" ");
+			for(String item: availableKeywords) {
+				if(item.contains(keyDescription[0]) && item.contains(keyDescription[1]))
+					this.data.put(item.toString(), entry.getValue().toString());
+			}
+		}
+		System.out.println(this.data);
+
+	}
+	
+	/**
 	 * Public method to retrieve document from given URL.
-	 * @param url: String representing final version of request URL.
+	 * @param connection: Jsoup connection to retrieve an HTML document from.
 	 * @return: Document (HTML) retrieved from URL.
-	 * @throws UnsupportedEncodingException 
 	 */
 	public Document getDocument(Connection connection) {
 		try {
@@ -302,5 +236,132 @@ public class Webpage {
 		}
 		return document;
 	}
+		
+	/**
+	 * Builder Class for Webpage class.
+	 * @author Ivy Sugars
+	 *
+	 */
+	public static class WebpageBuilder{
+		// required parameters
+		private String url; 
+		
+		// optional parameters
+		private String maxPrice, minPrice;
+		private String maxBed, minBed;
+		private String maxBath, minBath;
+		private String petDog, petCat;
+		// this should be set to true if any search parameters are set.
+		private Boolean redirect = false;
+		
+		/**
+		 * Constructor sets required parameters.
+		 * @param url: String representing a base URL for a Webpage.
+		 */
+		public WebpageBuilder(String url) {
+			this.url = url;
+		}
+		
+		/**
+		 * Public method to set the maximum price.
+		 * @param price: String value of the maximum price.
+		 * @return: WebpageBuilder with set parameters.
+		 */
+		public WebpageBuilder setMaxPrice(String price) {
+			this.maxPrice = price;
+			return this;
+		}
+		
+		/**
+		 * Public method to set the minimum price.
+		 * @param price: String value of the minimum price.
+		 * @return: WebpageBuilder with set parameters.
+		 */
+		public WebpageBuilder setMinPrice(String price) {
+			this.minPrice = price;
+			return this;
+		}
+		
+		/**
+		 * Public method to set the maximum number of bedrooms.
+		 * @param beds: String value of the maximum number of bedrooms.
+		 * @return: WebpageBuilder with set parameters.
+		 */
+		public WebpageBuilder setMaxBed(String beds) {
+			this.maxBed = beds;
+			return this;
+		}
+		
+		/**
+		 * Public method to set the minimum number of bedrooms.
+		 * @param beds: String value of the minimum number of bedrooms.
+		 * @return: WebpageBuilder with set parameters.
+		 */
+		public WebpageBuilder setMinBed(String beds) {
+			this.minBed = beds;
+			return this;
+		}
+		
+		/**
+		 * Public method to set the maximum number of bathrooms.
+		 * @param baths: String value of the maximum number of bathrooms.
+		 * @return: WebpageBuilder with set parameters.
+		 */
+		public WebpageBuilder setMaxBath(String baths) {
+			this.maxBath = baths;
+			return this;
+		}
+		
+		/**
+		 * Public method to set the minimum number of bathrooms.
+		 * @param baths: String value of the minimum number of bathrooms.
+		 * @return: WebpageBuilder with set parameters.
+		 */
+		public WebpageBuilder setMinBath(String baths) {
+			this.minBath = baths;
+			return this;
+		}
+		
+		/**
+		 * Public method to set if dogs are allowed in the property.
+		 * @param dogs: String value; "1" is allowed and "0" is not allowed.
+		 * @return: WebpageBuilder with set parameters.
+		 */
+		public WebpageBuilder setPetDogs(String dogs) {
+			this.petDog = dogs;
+			return this;
+		}
+		
+		/**
+		 * Public method to set if cats are allowed in the property.
+		 * @param cats: String value; "1" is allowed and "0" is not allowed.
+		 * @return: WebpageBuilder with set parameters.
+		 */
+		public WebpageBuilder setPetCats(String cats) {
+			this.petCat = cats;
+			return this;
+		}
+		
+		/**
+		 * Public method to set whether a redirect is required.
+		 * @param bool: Boolean value is false unless search parameters are set.
+		 * @return: WebpageBuilder with set parameters.
+		 */
+		public WebpageBuilder setRedirect(Boolean bool) {
+			this.redirect = bool;
+			return this;
+		}
+		
+		/**
+		 * Public method builds a Webpage with all required and optional parameters set.
+		 * @return: Webpage with all parameter set.
+		 */
+		public Webpage build() {
+			return new Webpage(this);
+		}
+	}
+	
+		
+	
 }
  
