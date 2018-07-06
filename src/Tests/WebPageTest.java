@@ -21,109 +21,108 @@ import com.isugz.ScraperTools.Webpage;
 public class WebPageTest {
 	String baseUrl = "https://seattle.craigslist.org/search/apa";
 	Map<String, String> searchParams = new HashMap<>();
-	Webpage page = new Webpage(baseUrl, searchParams);
+	Webpage page = new Webpage.WebpageBuilder(baseUrl).setMinBath("2")
+													  .setMinBed("3")
+													  .setMaxPrice("3000")
+													  .setRedirect(true)
+													  .build();
+	Webpage pageWithNoSearParams = new Webpage.WebpageBuilder(baseUrl).build();
 	
 	@Before
 	public void setUp() throws Exception {
-		searchParams.put("postal", "98144");
-		searchParams.put("max_price", "3000");
-		searchParams.put("min_bedrooms", "3");
-		searchParams.put("min_bathrooms", "1");
+		
 	}
 
 	@After
 	public void tearDown() throws Exception {
 	}
 
-//	@Test
-//	public void whenWebpageCreatedUrlObjectCorrectTest() {
-//		assertEquals(page.urlObject.toString(), baseUrl);
-//	}
-//	
-//	
-//	@Test
-//	public void getConnectionNoSearchParamsBaseUrlCorrectTest() throws IOException {
-//		HashMap<String, String> noSearchParams = new HashMap<>();
-//		Connection connection = page.getJsoupConnection(noSearchParams);
-//		Document doc = page.getDocument(connection);
-//		String url = doc.baseUri();
-//		String expectedUrl = "https://seattle.craigslist.org/search/apa";
-////		System.out.println("base url with no params: " + url);
-//		assertEquals(expectedUrl, url);
-//	}
-//	
-//	
-//	@Test
-//	public void getConnectionSearchParamsBaseUrlCorrectTest() throws IOException {
-//		Connection connection = page.getJsoupConnection(searchParams);
-//		Document doc = page.getDocument(connection);
-//		String url = doc.baseUri();
-//		String expectedUrl = "https://seattle.craigslist.org/search/apa?max_price=3000&min_bedrooms=3&postal=98144&min_bathrooms=1";
-////		System.out.println("baseurl with params: " + url);
-//		assertEquals(expectedUrl, url);
-//	}
-//	
-//	
-//	@Test
-//	public void getDocumentContainsCorrectMaximumPriceTest() throws IOException {
-//		int maxPrice = 3000;
-//		Connection connection = page.getJsoupConnection(searchParams);
-//		Document doc = page.getDocument(connection);
-//		Elements elements = doc.select("span.result-price");
-//		 for (Element e : elements) {
-//			 int htmlPrice = Integer.parseInt(e.text().substring(1, e.text().length()));
-//			 assertTrue(htmlPrice <= maxPrice);
-//		 }
-//	}
-//	
-//	@Test
-//	public void getDocumentContainsCorrectMinimumBedroomsTest() {
-//		int minimumBedrooms = 3;
-//		Connection connection = page.getJsoupConnection(searchParams);
-//		Document doc = page.getDocument(connection);
-//		Elements elements = doc.select("span.housing");
-//		 for (Element e : elements) {
-//			 int htmlMinimumBedrooms = Integer.parseInt(e.text().substring(0, 1));
-////			 System.out.println("bedrooms: " + htmlMinimumBedrooms);
-//			 assertTrue(htmlMinimumBedrooms >= minimumBedrooms);
-//		 }
-//	}
-//	
-//	
-//	@Test
-//	public void getFormDataKeyNamesTest() {
-//		List<String> formData = new ArrayList<>();
-//		String[] keys = {"min_price", "max_price", "min_bedrooms", "max_bedrooms", "min_bathrooms",
-//							"max_bedrooms", "pets_cat", "pets_dog"};
-//		Connection connection = page.getJsoupConnection(null);
-//		Document doc = page.getDocument(connection);
-////		System.out.println(doc.baseUri());
-////		System.out.println(doc.getElementsByAttribute("name"));
-//		formData = page.findFormDataKeywords();
-//		for(String item: keys) {
-////			System.out.println(item);
-////			System.out.println(formData.contains(item));
-//			assertTrue(formData.contains(item));
-//		}
-//	}
+	@Test
+	public void whenWebpageCreatedUrlObjectCorrectTest() {
+		String expectedUrl = baseUrl;
+		String actualUrl = page.getUrl();
+		assertEquals(expectedUrl, actualUrl);
+	}
+	
 	
 	@Test
-	public void getRedirectTest() {
-//		construct hash map
-		Map<String, String> initialData = new HashMap<>();
-		initialData.put("max price", "3000");
-		initialData.put("max rent", "3000");
-		initialData.put("unit type", "3");
-		initialData.put("min bed", "3");
-		initialData.put("min bath", "2");
-		initialData.put("pet dog", "1");
-//		make connection
-		page.data = initialData;
-		Connection connection = page.getJsoupConnection(null);
-		// close connection?
+	public void getConnectionNoSearchParamsBaseUrlCorrectTest() throws IOException {
+		Connection connection = pageWithNoSearParams.getJsoupConnection();
+		Document doc = pageWithNoSearParams.getDocument(connection);
+		String url = doc.baseUri();
+		String expectedUrl = "https://seattle.craigslist.org/search/apa";
+//		System.out.println("base url with no params: " + url);
+		assertEquals(expectedUrl, url);
+	}
+	
+	
+	@Test
+	public void getConnectionSearchParamsBaseUrlCorrectTest() throws IOException {
+		Connection connection = page.getJsoupConnection();
+		page.getDocument(connection);
+		String url = page.getUrl();
+		String expectedUrl = "https://seattle.craigslist.org/search/apa?max_price=3000&min_bedrooms=3&min_bathrooms=2";
+//		System.out.println("baseurl with params: " + url);
+//		System.out.println("what is in data? " + page.getData());
+		assertEquals(expectedUrl, url);
+	}
+	
+	
+	@Test
+	public void getDocumentContainsCorrectMaximumPriceTest() throws IOException {
+		int maxPrice = 3000;
+		Connection connection = page.getJsoupConnection();
 		Document doc = page.getDocument(connection);
-		Connection newConnection = page.getRedirect();
-		Document newDoc = page.getDocument(newConnection);
-//		check for correct url; check for correct data
+		Elements elements = doc.select("span.result-price");
+		 for (Element e : elements) {
+			 int htmlPrice = Integer.parseInt(e.text().substring(1, e.text().length()));
+			 assertTrue(htmlPrice <= maxPrice);
+		 }
+	}
+	
+	@Test
+	public void getDocumentContainsCorrectMinimumBedroomsTest() throws IOException {
+		int minimumBedrooms = 3;
+		Connection connection = page.getJsoupConnection();
+		Document doc = page.getDocument(connection);
+		Elements elements = doc.select("span.housing");
+		 for (Element e : elements) {
+			 int htmlMinimumBedrooms = Integer.parseInt(e.text().substring(0, 1));
+//			 System.out.println("bedrooms: " + htmlMinimumBedrooms);
+			 assertTrue(htmlMinimumBedrooms >= minimumBedrooms);
+		 }
+	}
+	
+	
+	@Test
+	public void getFormDataKeyNamesTest() throws IOException {
+		List<String> formData = new ArrayList<>();
+		String[] keys = {"min_price", "max_price", "min_bedrooms", "max_bedrooms", "min_bathrooms",
+							"max_bedrooms", "pets_cat", "pets_dog"};
+		Connection connection = page.getJsoupConnection();
+		page.getDocument(connection);
+//		System.out.println(doc.baseUri());
+//		System.out.println(doc.getElementsByAttribute("name"));
+		formData = page.findFormDataKeywords();
+		for(String item: keys) {
+//			System.out.println(item);
+//			System.out.println(formData.contains(item));
+			assertTrue(formData.contains(item));
+		}
+	}
+	
+	@Test
+	public void getRedirectCorrectSearchParamDataTest() throws IOException {
+		Map<String, String> expectedSearchParamData = new HashMap<>();
+		expectedSearchParamData.put("max_price", "3000");
+		expectedSearchParamData.put("min_bedrooms", "3");
+		expectedSearchParamData.put("min_bathrooms", "2");
+		Connection connection = page.getJsoupConnection();
+		page.getDocument(connection);
+		Map<String, String> actualSearchParamData = page.getData();
+//		check for correct data
+		assertEquals(expectedSearchParamData, actualSearchParamData);
+		
+		
 	}
 }
