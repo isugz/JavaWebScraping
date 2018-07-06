@@ -3,7 +3,6 @@ package Tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,8 +20,8 @@ import com.isugz.ScraperTools.Webpage;
 
 public class WebPageTest {
 	String baseUrl = "https://seattle.craigslist.org/search/apa";
-	Webpage page = new Webpage(baseUrl);
 	Map<String, String> searchParams = new HashMap<>();
+	Webpage page = new Webpage(baseUrl, searchParams);
 	
 	@Before
 	public void setUp() throws Exception {
@@ -45,7 +44,7 @@ public class WebPageTest {
 	@Test
 	public void getConnectionNoSearchParamsBaseUrlCorrectTest() throws IOException {
 		HashMap<String, String> noSearchParams = new HashMap<>();
-		Connection connection = page.getJsoupConnection(baseUrl, noSearchParams);
+		Connection connection = page.getJsoupConnection(noSearchParams);
 		Document doc = page.getDocument(connection);
 		String url = doc.baseUri();
 		String expectedUrl = "https://seattle.craigslist.org/search/apa";
@@ -56,7 +55,7 @@ public class WebPageTest {
 	
 	@Test
 	public void getConnectionSearchParamsBaseUrlCorrectTest() throws IOException {
-		Connection connection = page.getJsoupConnection(baseUrl, searchParams);
+		Connection connection = page.getJsoupConnection(searchParams);
 		Document doc = page.getDocument(connection);
 		String url = doc.baseUri();
 		String expectedUrl = "https://seattle.craigslist.org/search/apa?max_price=3000&min_bedrooms=3&postal=98144&min_bathrooms=1";
@@ -68,7 +67,7 @@ public class WebPageTest {
 	@Test
 	public void getDocumentContainsCorrectMaximumPriceTest() throws IOException {
 		int maxPrice = 3000;
-		Connection connection = page.getJsoupConnection(baseUrl, searchParams);
+		Connection connection = page.getJsoupConnection(searchParams);
 		Document doc = page.getDocument(connection);
 		Elements elements = doc.select("span.result-price");
 		 for (Element e : elements) {
@@ -80,7 +79,7 @@ public class WebPageTest {
 	@Test
 	public void getDocumentContainsCorrectMinimumBedroomsTest() {
 		int minimumBedrooms = 3;
-		Connection connection = page.getJsoupConnection(baseUrl, searchParams);
+		Connection connection = page.getJsoupConnection(searchParams);
 		Document doc = page.getDocument(connection);
 		Elements elements = doc.select("span.housing");
 		 for (Element e : elements) {
@@ -96,11 +95,11 @@ public class WebPageTest {
 		List<String> formData = new ArrayList<>();
 		String[] keys = {"min_price", "max_price", "min_bedrooms", "max_bedrooms", "min_bathrooms",
 							"max_bedrooms", "pets_cat", "pets_dog"};
-		Connection connection = page.getJsoupConnection(baseUrl, null);
+		Connection connection = page.getJsoupConnection(null);
 		Document doc = page.getDocument(connection);
 //		System.out.println(doc.baseUri());
 //		System.out.println(doc.getElementsByAttribute("name"));
-		formData = page.findFormDataKeywords(doc);
+		formData = page.findFormDataKeywords();
 		for(String item: keys) {
 //			System.out.println(item);
 //			System.out.println(formData.contains(item));

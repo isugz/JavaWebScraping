@@ -26,8 +26,8 @@ import com.isugz.ScraperTools.Webpage;
 public class ScraperTest {
 
 	static String baseUrl = "https://seattle.craigslist.org/d/housing/search/hhh";
-	static Webpage page = new Webpage(baseUrl);
 	static Map<String, String> searchParams = new HashMap<>();
+	static Webpage page = new Webpage(baseUrl, searchParams);
 	static Document doc;
 	Scraper scraper = new Scraper(doc);
 	
@@ -40,7 +40,7 @@ public class ScraperTest {
 		searchParams.put("max_price", "3000");
 		searchParams.put("min_bedrooms", "3");
 		searchParams.put("min_bathrooms", "1");
-		Connection connection = page.getJsoupConnection(baseUrl, searchParams);
+		Connection connection = page.getJsoupConnection(searchParams);
 		doc = page.getDocument(connection);
 	}
 
