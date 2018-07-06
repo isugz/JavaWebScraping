@@ -12,7 +12,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.isugz.ScraperTools.Webpage;
-import com.isugz.ScraperTools.BuildRequestedDataFromHtml;
 
 /**
  * @author Ivy Sugars
@@ -29,7 +28,6 @@ import com.isugz.ScraperTools.BuildRequestedDataFromHtml;
 
 public class Scraper {
 	public Document document;
-	public BuildRequestedDataFromHtml data;
 	
 	/**
 	 * Constructor takes a Document to scrape.
