@@ -25,15 +25,15 @@ public class GoogleSearchTest {
 
 	@Test
 	public void googleSearchCreatedSearchUrlCorrectTest() {
-		String actualSearchUrl = search.url.toString(); 
+		String actualSearchUrl = search.getSearchUrl(); 
 		assertEquals(expectedSearchUrl, actualSearchUrl);
 	}
 	
 	@Test
 	public void googleSearchCreatedSetNumberOfUrlsRetrievedTest() {
 		search = new GoogleSearch(keywords);
-		int expectedNumberResults = Integer.parseInt(GoogleSearch.NUMBER_OF_RESULTS);
-		int actualNumberResults = search.listOfUrls.size();
+		int expectedNumberResults = Integer.parseInt(search.getNumberOfResults());
+		int actualNumberResults = search.getListOfUrls().size();
 		assertEquals(expectedNumberResults, actualNumberResults);
 	}
 

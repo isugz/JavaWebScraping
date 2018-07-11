@@ -3,6 +3,8 @@
  */
 package com.isugz.JavaWebScraper;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,6 +13,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.isugz.ScraperTools.GoogleSearch;
 import com.isugz.ScraperTools.Webpage;
 
 /**
@@ -27,40 +30,60 @@ import com.isugz.ScraperTools.Webpage;
  */
 
 public class Scraper {
+	private Webpage page;
+	private Map<String, String> dataIdentifiers = new HashMap<>();
 	public Document document;
+	public static final String[] KEYWORDS = {"Seattle", "rental"};
 	
-	/**
-	 * Constructor takes a Document to scrape.
-	 * @param htmlToScrape
-	 */
-	public Scraper(Document htmlToScrape) {
-		this.document = htmlToScrape;
+	public Scraper(Webpage page) {
+		this.page = page;
+		this.document = page.getDocument();
 	}
 
 	/**
 	 * Method scrapes a Document for a set of data.
 	 * @return: A string with scraped data.
-	 * TODO look at making a builder method to handle the requested data and handing scrape() that object
-	 * 		scrape(scrapeDataBuilder builder)
 	 */
-	public String scrape(String[] requestedData, String contentId, String contentClass) {
-		StringBuilder resultString = new StringBuilder();
-		Element resultContent = this.document.getElementById(contentId);
-		Elements resultItems = resultContent.getElementsByClass(contentClass);
-		for(Element item : resultItems) {
-			resultString.append("{\n");
-			resultString.append(item.getElementsByClass(requestedData[3]).attr("href"));
-			resultString.append(":\n");
-			String houseInformation = item.getElementsByClass(requestedData[0]).text();
-			String price = item.getElementsByClass(requestedData[1]).text();
-			String neighborhood = item.getElementsByClass(requestedData[2]).text();
-			System.out.println(houseInformation + "\t" + price + "\t" + neighborhood);
-			resultString.append(houseInformation);
-			resultString.append(price);
-			resultString.append(neighborhood);
-			resultString.append("\n}\n");
-			
+	public String scrape() {
+		this.setTemporaryIdentifiers();
+		/**
+		 * all classes whose text contains '$'
+		 * need patterns for:
+		 * -beds
+		 * -baths
+		 * -pets
+		 * -result link or property link
+		 */
+
+		return null;
+	}
+	
+	/**
+	 * Private method used to set temporary identifiers based on selected options for a Webpage
+	 */
+	private void setTemporaryIdentifiers() {
+		for(Map.Entry<String, String> entry: this.page.getData().entrySet()) {
+			this.dataIdentifiers.put(entry.getKey(), "");
 		}
-		return resultString.toString();
+	}
+	
+	
+	public static void main(String[] args) throws IOException {
+		// Search keywords
+		GoogleSearch search = new GoogleSearch(KEYWORDS);
+		ArrayList<String> urlsToScrape = search.getListOfUrls();
+		System.out.println(urlsToScrape.get(3));
+		Webpage page = new Webpage.WebpageBuilder(urlsToScrape.get(3)).setMaxPrice("3000")
+																	  .setMinBed("4")
+																	  .setMinBath("2")
+																	  .setRedirect(true)
+																	  .build();
+		Connection connection = page.getJsoupConnection();
+		page.getDocument(connection);
+		System.out.println(page.getUrl());
+		System.out.println(page.getData());
+		// Scrape data
+		Scraper rentalScraper = new Scraper(page);
+		rentalScraper.scrape();
 	}
 }

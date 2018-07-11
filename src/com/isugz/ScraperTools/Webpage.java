@@ -94,7 +94,7 @@ public class Webpage {
 	}
 	
 	/**
-	 * Public bathroom gets the value of the petDog search parameter.
+	 * Public method gets the value of the petDog search parameter.
 	 * @return: String representing the value of dogs in the Webpage search parameters.
 	 * Example: petDog = "1" i.e. dogs are allowed at this rental.
 	 * 			petDog = "0" i.e. dogs are not allowed at this rental.
@@ -104,13 +104,21 @@ public class Webpage {
 	}
 	
 	/**
-	 * Public bathroom gets the value of the petCat search parameter.
+	 * Public method gets the value of the petCat search parameter.
 	 * @return: String representing the value of cats in the Webpage search parameters.
 	 * Example: petCat = "1" i.e. cats are allowed at this rental.
 	 * 			petCat = "0" i.e. cats are not allowed at this rental.
 	 */
 	public String getPetCat() {
 		return this.petCat;
+	}
+	
+	/**
+	 * Public method get the HTML document for the Webpage.
+	 * @return: HTML document.
+	 */
+	public Document getDocument() {
+		return this.document;
 	}
 	
 	/**

@@ -20,11 +20,11 @@ import org.jsoup.select.Elements;
  */
 public class GoogleSearch {
 	
-	public static final String SEARCH_URL = "https://www.google.com/search";
-	public static final String NUMBER_OF_RESULTS = "5";
-	public ArrayList<String> listOfUrls = new ArrayList<>();
-	public URL url;
-	public String[] searchTerms;
+	private static final String SEARCH_URL = "https://www.google.com/search";
+	private static final String NUMBER_OF_RESULTS = "5";
+	private ArrayList<String> listOfUrls = new ArrayList<>();
+	private URL url;
+	private String[] searchTerms;
 	
 	/**
 	 * Constructor creates a google search from keywords, initializing the resulting list of URLs.
@@ -94,6 +94,30 @@ public class GoogleSearch {
 		for(Element item: resultUrls) {
 			this.listOfUrls.add(item.getElementsByTag("a").attr("href"));
 		}
+	}
+	
+	/**
+	 * Public method gets the complete google search URL.
+	 * @return: String representing the google search URL.
+	 */
+	public String getSearchUrl() {
+		return this.url.toString();
+	}
+	
+	/**
+	 * Public method gets the number of results included in a google search.
+	 * @return: String representing the number of results returned for a google search.
+	 */
+	public String getNumberOfResults() {
+		return GoogleSearch.NUMBER_OF_RESULTS;
+	}
+	
+	/**
+	 * Public method gets the list of resulting URLs for a google search.
+	 * @return: ArrayList whose elements are String representations of URLs results from a google search.
+	 */
+	public ArrayList<String> getListOfUrls(){
+		return this.listOfUrls;
 	}
 
 }
