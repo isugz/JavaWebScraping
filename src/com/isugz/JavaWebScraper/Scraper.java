@@ -45,7 +45,8 @@ public class Scraper {
 	 * @return: A string with scraped data.
 	 */
 	public String scrape() {
-		this.setTemporaryIdentifiers();
+		this.setIdentifiers();
+		System.out.println(this.dataIdentifiers);
 		/**
 		 * all classes whose text contains '$'
 		 * need patterns for:
@@ -54,17 +55,28 @@ public class Scraper {
 		 * -pets
 		 * -result link or property link
 		 */
-
+		// find elements whose value contains the common pattern
+		// first do craigslist; then try to generalize and deal with script rendered data specifically react
+		Elements results = this.document.getElementsByClass("result-info");
+		int count = 0;
+		
+		for(Element result: results) {
+			Elements links = result.getElementsByTag("a");
+			String propertyLink = links.attr("href");
+			System.out.println(propertyLink);
+			String price = result.getElementsByClass("result-price").text();
+			System.out.println(price);
+			String housing = result.getElementsByClass("housing").text();
+			System.out.println(housing + "\n");
+		}
 		return null;
 	}
 	
 	/**
-	 * Private method used to set temporary identifiers based on selected options for a Webpage
+	 * Private method used to set identifiers based on an established set of commonly used terms for rental information
 	 */
-	private void setTemporaryIdentifiers() {
-		for(Map.Entry<String, String> entry: this.page.getData().entrySet()) {
-			this.dataIdentifiers.put(entry.getKey(), "");
-		}
+	private void setIdentifiers() {
+		String[] dataToFind = {"price", "bed", "bath", "housing", "link"};
 	}
 	
 	
@@ -72,18 +84,23 @@ public class Scraper {
 		// Search keywords
 		GoogleSearch search = new GoogleSearch(KEYWORDS);
 		ArrayList<String> urlsToScrape = search.getListOfUrls();
-		System.out.println(urlsToScrape.get(3));
-		Webpage page = new Webpage.WebpageBuilder(urlsToScrape.get(3)).setMaxPrice("3000")
-																	  .setMinBed("4")
-																	  .setMinBath("2")
-																	  .setRedirect(true)
-																	  .build();
-		Connection connection = page.getJsoupConnection();
-		page.getDocument(connection);
-		System.out.println(page.getUrl());
-		System.out.println(page.getData());
-		// Scrape data
-		Scraper rentalScraper = new Scraper(page);
-		rentalScraper.scrape();
+//		System.out.println(urlsToScrape.toString());
+//		for(String url: urlsToScrape) {
+			Webpage page = new Webpage.WebpageBuilder(urlsToScrape.get(1)).setMaxPrice("3000")
+																		  .setMinBed("4")
+																		  .setMinBath("2")
+																		  .setRedirect(true)
+																		  .build();
+			
+			Connection connection = page.getJsoupConnection();
+			page.getDocument(connection);
+			System.out.println(page.getUrl());
+		
+	//		System.out.println(page.getUrl());
+			System.out.println(page.getData());
+			// Scrape data
+			Scraper rentalScraper = new Scraper(page);
+//			rentalScraper.scrape();
+//		}
 	}
 }

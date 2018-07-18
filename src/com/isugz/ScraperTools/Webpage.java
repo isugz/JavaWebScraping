@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -216,18 +217,42 @@ public class Webpage {
 	 * @return: Arraylist with the available names of keys for search queries.
 	 */
 	public List<String> findFormDataKeywords() {
-		String[] keys = {"price", "rent", "bedroom", "bathroom", "type", "pet", "unit", "dog", "cat"};
+		// TODO: need to approach this from another angle; research how to deal with JS heavy sites
+		String[] keys = {"Beds", "Baths", "Price"};
+//			{"price", "rent", "bedroom", "bathroom", "type", "pets", "unit", "dog", "cat"};
+		int keyListSize = keys.length;
+		int count = 0;
 		ArrayList<String> nameList = new ArrayList<>();
+		//make a list of action label names
+		// find the name of the key containing "action"
+		Elements form = this.document.getElementsByTag("form");
+		Elements formFieldsToSet = form.tagName("fieldset").select("span[^data]");
+//		Attributes attributes = this.document.;
+		
+//		System.out.println("attr" + formFieldsToSet);
+		for(Element formField: formFieldsToSet) {
+			Map<String, String> attributes = formField.attributes().dataset();
+			System.out.println(attributes);
+			// handles Zillow; we want to check the classes or id inside the fieldset that contain key
+			if(attributes.containsValue(keys[count]) && count < keyListSize) {
+				int beginningIndex = 1;
+				int endingIndex = attributes.keySet().toString().length() - 1;
+				String name = formField.attr("data-" + attributes.keySet().toString().substring(beginningIndex, endingIndex));
+				nameList.add(name);
+//				System.out.println("data-"+attributes.keySet().toString().substring(beginningIndex, endingIndex));
+				count++;
+			}
+		}
 		for(String key: keys) {
 //			System.out.println("key " + key.getClass());
-			Elements namesFound = (this.document.getElementsByAttributeValueContaining("name", key));
+			Elements namesFound = this.document.getElementsByAttributeValueContaining("name", key);
 //			System.out.println("names found" + namesFound);
 			for(Element name: namesFound) {
 				nameList.add(name.attr("name"));
 			}
 		}
 		List<String> noDuplicatesNameList = nameList.stream().distinct().collect(Collectors.toList());
-//		System.out.println("available names" + noDuplicatesNameList);
+		System.out.println("available names" + noDuplicatesNameList);
 		return noDuplicatesNameList;
 	}	
 	
@@ -240,6 +265,7 @@ public class Webpage {
 		for(Map.Entry<String, String> entry: this.temporaryData.entrySet()) {
 			String[] keyDescription = entry.getKey().toString().split(" ");
 			for(String item: availableKeywords) {
+				
 				if(item.contains(keyDescription[0]) && item.contains(keyDescription[1]))
 					this.data.put(item.toString(), entry.getValue().toString());
 			}
